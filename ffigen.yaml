@@ -1,15 +1,8 @@
-# Run with `dart run ffigen --config ffigen.yaml`.
 name: DeviceScreenBrightnessBindings
-description: |
-  Bindings for `src/device_screen_brightness.h`.
-
-  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/device_screen_brightness_bindings_generated.dart'
+description: Bindings for device_screen_brightness native library.
+output: "lib/device_screen_brightness_bindings_generated.dart"
 headers:
   entry-points:
-    - 'src/device_screen_brightness.h'
+    - "src/device_screen_brightness.h"
   include-directives:
-    - 'src/device_screen_brightness.h'
-comments:
-  style: any
-  length: full
+    - "src/device_screen_brightness.h"

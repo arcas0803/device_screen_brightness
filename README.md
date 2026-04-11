@@ -1,92 +1,197 @@
 # device_screen_brightness
 
-A new Flutter FFI plugin project.
+[![pub.dev](https://img.shields.io/pub/v/device_screen_brightness.svg)](https://pub.dev/packages/device_screen_brightness)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Getting Started
+A Flutter FFI plugin for reading and controlling screen brightness on Android, iOS, macOS, Windows, and Linux.
 
-This project is a starting point for a Flutter
-[FFI plugin](https://flutter.dev/to/ffi-package),
-a specialized package that includes native code directly invoked with Dart FFI.
+All brightness values are normalised to an **integer 0–100** regardless of each platform's native range.
 
-## Project structure
+---
 
-This template uses the following structure:
+## Platform support
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
+| Platform | getBrightness | setBrightness | increment / decrement | streamBrightness | Notes |
+|----------|:---:|:---:|:---:|:---:|-------|
+| Android  | ✅ | ✅ | ✅ | ✅ | App-level & system-level modes (see below) |
+| iOS      | ✅ | ✅ | ✅ | ✅ | UIScreen.brightness |
+| macOS    | ✅ | ✅ | ✅ | ✅ | DisplayServices (built-in Apple displays only — see below) |
+| Linux    | ✅ | ✅ | ✅ | ✅ | sysfs backlight (group `video`) |
+| Windows  | ✅ | ✅ | ✅ | ✅ | Physical Monitor API (dxva2) |
 
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
+---
 
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
-
-## Building and bundling native code
-
-The `pubspec.yaml` specifies FFI plugins as follows:
+## Installation
 
 ```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
+dependencies:
+  device_screen_brightness: ^0.2.0
 ```
 
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
+---
 
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
+## Android — BrightnessMode
 
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
+On Android, every brightness operation accepts an optional `BrightnessMode`
+parameter that controls **what** brightness is modified:
+
+| Mode | Behaviour | Permission |
+|------|-----------|------------|
+| `BrightnessMode.app` | Changes `WindowManager.LayoutParams.screenBrightness` on the current Activity. Only affects this app; resets when the Activity is destroyed. | **None** |
+| `BrightnessMode.system` *(default)* | Writes `Settings.System.SCREEN_BRIGHTNESS`. Affects the entire device and persists after the app is closed. | `WRITE_SETTINGS` |
+
+> On **iOS, macOS, Linux and Windows** the `mode` parameter is ignored — the
+> system brightness is always used.
+
+### System-level brightness — AndroidManifest.xml
+
+If you plan to use `BrightnessMode.system` (the default), add the following
+permission to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    ...
+</manifest>
 ```
 
-A plugin can have both FFI and method channels:
+`WRITE_SETTINGS` is a *special permission* — it is **not** granted
+automatically at install time. Before calling `setBrightness` with
+`BrightnessMode.system`, check and request the permission:
 
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
+```dart
+// Check whether the permission has already been granted
+if (!DeviceScreenBrightness.hasPermission()) {
+  // Opens the system settings screen where the user can grant the permission
+  DeviceScreenBrightness.requestPermission();
+}
 ```
 
-The native build systems that are invoked by FFI (and method channel) plugins are:
+### App-level brightness — no permission needed
 
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/device_screen_brightness.podspec.
-  * See the documentation in macos/device_screen_brightness.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
+With `BrightnessMode.app` no permission is required. The brightness is
+applied only to the current Activity window and resets when the app is
+closed:
 
-## Binding to native code
+```dart
+// Set app-level brightness (no permission needed)
+DeviceScreenBrightness.setBrightness(75, mode: BrightnessMode.app);
 
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/device_screen_brightness.h`) by `package:ffigen`.
-Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
+// Read app-level brightness (falls back to system if not set)
+int level = DeviceScreenBrightness.getBrightness(mode: BrightnessMode.app);
+```
 
-## Invoking native code
+---
 
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/device_screen_brightness.dart`.
+## Usage
 
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/device_screen_brightness.dart`.
+```dart
+import 'package:device_screen_brightness/device_screen_brightness.dart';
 
-## Flutter help
+// Read brightness (0–100)
+int level = DeviceScreenBrightness.getBrightness();
 
-For help getting started with Flutter, view our
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+// Set brightness (0–100)
+DeviceScreenBrightness.setBrightness(75);
 
+// Increment / decrement by one platform step (5)
+DeviceScreenBrightness.incrementBrightness();
+DeviceScreenBrightness.decrementBrightness();
+
+// Stream — emits current value immediately, then on every change (250 ms polling)
+DeviceScreenBrightness.streamBrightness().listen((value) {
+  print('Brightness: $value');
+});
+```
+
+### BrightnessMode on Android
+
+```dart
+// App-level brightness (no permission needed, resets on Activity destroy)
+DeviceScreenBrightness.setBrightness(80, mode: BrightnessMode.app);
+int appLevel = DeviceScreenBrightness.getBrightness(mode: BrightnessMode.app);
+
+// System-level brightness (requires WRITE_SETTINGS, persists)
+DeviceScreenBrightness.setBrightness(80, mode: BrightnessMode.system);
+int sysLevel = DeviceScreenBrightness.getBrightness(mode: BrightnessMode.system);
+
+// Stream with a specific mode
+DeviceScreenBrightness.streamBrightness(mode: BrightnessMode.app).listen((v) {
+  print('App brightness: $v');
+});
+```
+
+### Permission helpers (Android only)
+
+```dart
+// Returns true on non-Android platforms
+bool granted = DeviceScreenBrightness.hasPermission();
+
+// Opens system settings to grant WRITE_SETTINGS; no-op on non-Android
+DeviceScreenBrightness.requestPermission();
+```
+
+### Compute variants
+
+Every one-shot operation has a `*Compute` counterpart that runs on a background isolate:
+
+```dart
+int level = await DeviceScreenBrightness.getBrightnessCompute();
+await DeviceScreenBrightness.setBrightnessCompute(80);
+await DeviceScreenBrightness.incrementBrightnessCompute();
+await DeviceScreenBrightness.decrementBrightnessCompute();
+
+// Compute variants also accept mode:
+await DeviceScreenBrightness.setBrightnessCompute(80, mode: BrightnessMode.app);
+```
+
+---
+
+## Error handling
+
+All failures throw a subclass of `DeviceScreenBrightnessException`:
+
+| Exception | When |
+|-----------|------|
+| `UnsupportedOperationException` | Operation not supported on the current platform |
+| `InvalidBrightnessValueException` | Value outside 0–100 |
+| `NativeBackendException` | Native OS / driver error |
+| `PermissionDeniedException` | Missing required permission (e.g. `WRITE_SETTINGS`) |
+| `BackendNotAvailableException` | No brightness backend found (headless, VM, etc.) |
+| `BrightnessObservationException` | Error while observing brightness changes |
+
+---
+
+## macOS — Limitaciones de plataforma
+
+El soporte de macOS usa el framework privado `DisplayServices` de Apple. Esto limita el control de brillo a los siguientes dispositivos:
+
+| Dispositivo | Funciona |
+|-------------|:--------:|
+| MacBook (pantalla integrada) | ✅ |
+| iMac (pantalla integrada) | ✅ |
+| Apple Studio Display | ✅ |
+| Apple Pro Display XDR | ✅ |
+| Monitores externos de terceros (LG, Dell, Samsung…) | ❌ |
+
+Los monitores externos de terceros conectados por HDMI, DisplayPort o USB-C **no están soportados**. Cualquier llamada en ese dispositivo lanza `BackendNotAvailableException`.
+
+> **¿Por qué?** macOS restringe el control de brillo por DDC/CI a apps con entitlements especiales de Apple. La API privada `IOAVService`, usada por herramientas como MonitorControl o m1ddc, requiere privilegios de root o entitlements com.apple.private.* que no están disponibles en aplicaciones de sandbox estándar.
+
+---
+
+## Regenerating bindings
+
+```bash
+# FFI bindings (C header → Dart)
+dart run ffigen --config ffigen.yaml
+
+# JNI bindings (Java → Dart)
+dart run jnigen --config jnigen.yaml
+```
+
+---
+
+## License
+
+[MIT](LICENSE)

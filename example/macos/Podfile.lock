@@ -1,0 +1,22 @@
+PODS:
+  - device_screen_brightness (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+
+DEPENDENCIES:
+  - device_screen_brightness (from `Flutter/ephemeral/.symlinks/plugins/device_screen_brightness/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+EXTERNAL SOURCES:
+  device_screen_brightness:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_screen_brightness/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  device_screen_brightness: 6a6717d470f142250bc06e3095c2360bd953b273
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+
+PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+
+COCOAPODS: 1.16.2

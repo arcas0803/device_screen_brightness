@@ -5,24 +5,22 @@
 Pod::Spec.new do |s|
   s.name             = 'device_screen_brightness'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter FFI plugin project.'
+  s.summary          = 'Control screen brightness from Flutter via FFI.'
   s.description      = <<-DESC
-A new Flutter FFI plugin project.
+Flutter FFI plugin for reading and writing the screen brightness on iOS
+using UIScreen.mainScreen.brightness.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/arcas0803/device_screen_brightness'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
-
-  # This will ensure the source files in Classes/ are included in the native
-  # builds of apps using this FFI plugin. Podspec does not support relative
-  # paths, so Classes contains a forwarder C file that relatively imports
-  # `../src/*` so that the C sources can be shared among all target platforms.
+  s.author           = { 'ArcasHH' => 'alvaroarcasgarcia@gmail.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files     = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.platform = :ios, '13.0'
-
-  # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.platform         = :ios, '13.0'
+  s.frameworks       = 'UIKit'
+  s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386'
+  }
   s.swift_version = '5.0'
 end

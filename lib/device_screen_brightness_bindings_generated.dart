@@ -4,10 +4,7 @@
 // ignore_for_file: type=lint, unused_import
 import 'dart:ffi' as ffi;
 
-/// Bindings for `src/device_screen_brightness.h`.
-///
-/// Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-///
+/// Bindings for device_screen_brightness native library.
 class DeviceScreenBrightnessBindings {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
@@ -22,32 +19,78 @@ class DeviceScreenBrightnessBindings {
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
 
-  /// A very short-lived native function.
-  ///
-  /// For very short-lived functions, it is fine to call them on the main isolate.
-  /// They will block the Dart execution while running the native function, so
-  /// only do this for native functions which are guaranteed to be short-lived.
-  int sum(int a, int b) {
-    return _sum(a, b);
+  DeviceScreenBrightnessResult device_screen_brightness_get() {
+    return _device_screen_brightness_get();
   }
 
-  late final _sumPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Int)>>('sum');
-  late final _sum = _sumPtr.asFunction<int Function(int, int)>();
-
-  /// A longer lived native function, which occupies the thread calling it.
-  ///
-  /// Do not call these kind of native functions in the main isolate. They will
-  /// block Dart execution. This will cause dropped frames in Flutter applications.
-  /// Instead, call these native functions on a separate isolate.
-  int sum_long_running(int a, int b) {
-    return _sum_long_running(a, b);
-  }
-
-  late final _sum_long_runningPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Int)>>(
-        'sum_long_running',
+  late final _device_screen_brightness_getPtr =
+      _lookup<ffi.NativeFunction<DeviceScreenBrightnessResult Function()>>(
+        'device_screen_brightness_get',
       );
-  late final _sum_long_running = _sum_long_runningPtr
-      .asFunction<int Function(int, int)>();
+  late final _device_screen_brightness_get = _device_screen_brightness_getPtr
+      .asFunction<DeviceScreenBrightnessResult Function()>();
+
+  DeviceScreenBrightnessResult device_screen_brightness_set(int value) {
+    return _device_screen_brightness_set(value);
+  }
+
+  late final _device_screen_brightness_setPtr =
+      _lookup<
+        ffi.NativeFunction<DeviceScreenBrightnessResult Function(ffi.Int32)>
+      >('device_screen_brightness_set');
+  late final _device_screen_brightness_set = _device_screen_brightness_setPtr
+      .asFunction<DeviceScreenBrightnessResult Function(int)>();
+
+  DeviceScreenBrightnessResult device_screen_brightness_increment() {
+    return _device_screen_brightness_increment();
+  }
+
+  late final _device_screen_brightness_incrementPtr =
+      _lookup<ffi.NativeFunction<DeviceScreenBrightnessResult Function()>>(
+        'device_screen_brightness_increment',
+      );
+  late final _device_screen_brightness_increment =
+      _device_screen_brightness_incrementPtr
+          .asFunction<DeviceScreenBrightnessResult Function()>();
+
+  DeviceScreenBrightnessResult device_screen_brightness_decrement() {
+    return _device_screen_brightness_decrement();
+  }
+
+  late final _device_screen_brightness_decrementPtr =
+      _lookup<ffi.NativeFunction<DeviceScreenBrightnessResult Function()>>(
+        'device_screen_brightness_decrement',
+      );
+  late final _device_screen_brightness_decrement =
+      _device_screen_brightness_decrementPtr
+          .asFunction<DeviceScreenBrightnessResult Function()>();
 }
+
+final class DeviceScreenBrightnessResult extends ffi.Struct {
+  @ffi.Int32()
+  external int value;
+
+  @ffi.Int32()
+  external int min;
+
+  @ffi.Int32()
+  external int max;
+
+  @ffi.Int32()
+  external int reserved;
+
+  @ffi.Int32()
+  external int error_code;
+}
+
+const int DSB_OK = 0;
+
+const int DSB_UNSUPPORTED_OPERATION = 1;
+
+const int DSB_PERMISSION_DENIED = 2;
+
+const int DSB_NATIVE_FAILURE = 3;
+
+const int DSB_INVALID_VALUE = 4;
+
+const int DSB_BACKEND_NOT_AVAILABLE = 5;

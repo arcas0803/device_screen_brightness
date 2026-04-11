@@ -19,4 +19,7 @@ target_compile_definitions(device_screen_brightness PUBLIC DART_SHARED_LIB)
 if (ANDROID)
   # Support Android 15 16k page size
   target_link_options(device_screen_brightness PRIVATE "-Wl,-z,max-page-size=16384")
+elseif(WIN32)
+  target_link_libraries(device_screen_brightness PRIVATE dxva2)
 endif()
+# Linux: no external dependencies (sysfs is pure POSIX)

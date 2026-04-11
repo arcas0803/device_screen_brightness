@@ -1,0 +1,10 @@
+output:
+  dart:
+    path: lib/src/jni/device_screen_brightness_helper.dart
+    structure: single_file
+classes:
+  - "com.example.device_screen_brightness.DeviceScreenBrightnessHelper"
+source_path:
+  - "android/src/main/java"
+class_path:
+  - "/Users/alvaroarcasgarcia/Library/Android/sdk/platforms/android-34/android.jar"

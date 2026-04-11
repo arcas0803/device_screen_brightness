@@ -162,33 +162,34 @@ All failures throw a subclass of `DeviceScreenBrightnessException`:
 
 ---
 
-## macOS — Limitaciones de plataforma
+## macOS — Platform limitations
 
-El soporte de macOS usa el framework privado `DisplayServices` de Apple. Esto limita el control de brillo a los siguientes dispositivos:
+macOS support uses Apple's private `DisplayServices` framework. This limits brightness control to the following devices:
 
-| Dispositivo | Funciona |
-|-------------|:--------:|
-| MacBook (pantalla integrada) | ✅ |
-| iMac (pantalla integrada) | ✅ |
+| Device | Supported |
+|--------|:---------:|
+| MacBook (built-in display) | ✅ |
+| iMac (built-in display) | ✅ |
 | Apple Studio Display | ✅ |
 | Apple Pro Display XDR | ✅ |
-| Monitores externos de terceros (LG, Dell, Samsung…) | ❌ |
+| Third-party external monitors (LG, Dell, Samsung…) | ❌ |
 
-Los monitores externos de terceros conectados por HDMI, DisplayPort o USB-C **no están soportados**. Cualquier llamada en ese dispositivo lanza `BackendNotAvailableException`.
+Third-party external monitors connected via HDMI, DisplayPort, or USB-C are **not supported**. Any call on such a setup throws `BackendNotAvailableException`.
 
-> **¿Por qué?** macOS restringe el control de brillo por DDC/CI a apps con entitlements especiales de Apple. La API privada `IOAVService`, usada por herramientas como MonitorControl o m1ddc, requiere privilegios de root o entitlements com.apple.private.* que no están disponibles en aplicaciones de sandbox estándar.
+> **Why?** macOS restricts DDC/CI brightness control to apps with special Apple entitlements. The private `IOAVService` API used by tools like MonitorControl and m1ddc requires root privileges or `com.apple.private.*` entitlements that are unavailable in standard sandboxed applications.
 
 ---
 
-## Regenerating bindings
+## Linux — Requirements
+
+The sysfs backlight interface (`/sys/class/backlight`) requires write permission. On most distributions the current user must belong to the `video` group:
 
 ```bash
-# FFI bindings (C header → Dart)
-dart run ffigen --config ffigen.yaml
-
-# JNI bindings (Java → Dart)
-dart run jnigen --config jnigen.yaml
+sudo usermod -aG video $USER
+# Log out and back in for the change to take effect
 ```
+
+If the user lacks write permission, `setBrightness` throws `PermissionDeniedException`.
 
 ---
 

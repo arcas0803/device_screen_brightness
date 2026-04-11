@@ -1,3 +1,10 @@
+## 0.2.1
+
+* README translated fully to English; macOS and Linux platform notes expanded.
+* `spec_device_screen_brightness.md` excluded from version control via `.gitignore`.
+* `windows/CMakeLists.txt` corrected to `LANGUAGES C` (was `CXX`).
+* CI: added `test`, `build-macos` jobs; `dry-run` now depends on `analyze`.
+
 ## 0.2.0
 
 * **`BrightnessMode` enum** — all brightness methods now accept an optional `mode` parameter (`BrightnessMode.app` or `BrightnessMode.system`).

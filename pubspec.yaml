@@ -4,7 +4,7 @@ description: >-
   setBrightness, incrementBrightness, decrementBrightness and
   streamBrightness with synchronous and compute-based async variants.
   Uses JNIgen on Android and FFI + FFIgen on iOS, macOS, Linux and Windows.
-version: 0.3.0
+version: 0.3.1
 homepage: https://github.com/arcas0803/device_screen_brightness
 repository: https://github.com/arcas0803/device_screen_brightness
 issue_tracker: https://github.com/arcas0803/device_screen_brightness/issues

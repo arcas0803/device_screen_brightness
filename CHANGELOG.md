@@ -1,3 +1,7 @@
+## 0.3.1
+
+* Add `example/linux` scaffolding and update `.metadata`.
+
 ## 0.3.0
 
 * **macOS: DDC/CI support for third-party external monitors** via the private

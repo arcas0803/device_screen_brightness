@@ -15,7 +15,7 @@ All brightness values are normalised to an **integer 0–100** regardless of eac
 |----------|:---:|:---:|:---:|:---:|-------|
 | Android  | ✅ | ✅ | ✅ | ✅ | App-level & system-level modes (see below) |
 | iOS      | ✅ | ✅ | ✅ | ✅ | UIScreen.brightness |
-| macOS    | ✅ | ✅ | ✅ | ✅ | DisplayServices (built-in Apple displays only — see below) |
+| macOS    | ✅ | ✅ | ✅ | ✅ | DisplayServices + DDC/CI via IOAVService (see below) |
 | Linux    | ✅ | ✅ | ✅ | ✅ | sysfs backlight (group `video`) |
 | Windows  | ✅ | ✅ | ✅ | ✅ | Physical Monitor API (dxva2) |
 
@@ -25,7 +25,7 @@ All brightness values are normalised to an **integer 0–100** regardless of eac
 
 ```yaml
 dependencies:
-  device_screen_brightness: ^0.2.0
+  device_screen_brightness: ^0.3.0
 ```
 
 ---
@@ -162,9 +162,11 @@ All failures throw a subclass of `DeviceScreenBrightnessException`:
 
 ---
 
-## macOS — Platform limitations
+## macOS — Platform support
 
-macOS support uses Apple's private `DisplayServices` framework. This limits brightness control to the following devices:
+macOS uses two backends selected automatically at runtime:
+
+### Backend 1 — DisplayServices (Apple native displays)
 
 | Device | Supported |
 |--------|:---------:|
@@ -172,11 +174,21 @@ macOS support uses Apple's private `DisplayServices` framework. This limits brig
 | iMac (built-in display) | ✅ |
 | Apple Studio Display | ✅ |
 | Apple Pro Display XDR | ✅ |
-| Third-party external monitors (LG, Dell, Samsung…) | ❌ |
 
-Third-party external monitors connected via HDMI, DisplayPort, or USB-C are **not supported**. Any call on such a setup throws `BackendNotAvailableException`.
+### Backend 2 — DDC/CI via IOAVService (third-party external monitors)
 
-> **Why?** macOS restricts DDC/CI brightness control to apps with special Apple entitlements. The private `IOAVService` API used by tools like MonitorControl and m1ddc requires root privileges or `com.apple.private.*` entitlements that are unavailable in standard sandboxed applications.
+Based on the open-source [m1ddc](https://github.com/waydabber/m1ddc) project.
+Sends DDC/CI commands directly to the monitor hardware over the cable.
+
+| Connection | Supported |
+|------------|:---------:|
+| USB-C / Thunderbolt / DisplayPort Alt-Mode (Apple Silicon) | ✅ |
+| Built-in HDMI on M1 / entry-level M2 Macs | ❌ |
+| Intel Macs (any external monitor) | ❌ |
+| Displays behind USB hubs that block DDC | ❌ |
+| Mac App Store (sandboxed) builds | ❌ |
+
+If no backend is available the call throws `BackendNotAvailableException`.
 
 ---
 

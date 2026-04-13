@@ -1,3 +1,16 @@
+## 0.3.0
+
+* **macOS: DDC/CI support for third-party external monitors** via the private
+  `IOAVService` API (Apple Silicon Macs, USB-C / Thunderbolt / DisplayPort
+  Alt-Mode connections).  Based on the open-source
+  [m1ddc](https://github.com/waydabber/m1ddc) project (MIT).
+* macOS backend now auto-selects at runtime:
+  1. `DisplayServices` for Apple native displays (built-in, Studio Display, Pro Display XDR).
+  2. `IOAVService` DDC/CI for third-party external monitors — falls back to
+     `BackendNotAvailableException` when neither backend is reachable.
+* `macos/device_screen_brightness.podspec`: added `IOKit` to `s.frameworks`.
+* README macOS section updated to document both backends and their limitations.
+
 ## 0.2.1
 
 * README translated fully to English; macOS and Linux platform notes expanded.

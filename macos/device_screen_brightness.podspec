@@ -7,8 +7,9 @@ Pod::Spec.new do |s|
   s.version          = '0.0.1'
   s.summary          = 'Control screen brightness from Flutter via FFI.'
   s.description      = <<-DESC
-Flutter FFI plugin for reading and writing the screen brightness on macOS
-using the private DisplayServices framework (built-in Apple displays only).
+Flutter FFI plugin for reading and writing the screen brightness on macOS.
+Supports built-in Apple displays via DisplayServices and third-party external
+monitors via DDC/CI (IOAVService) on Apple Silicon Macs.
                        DESC
   s.homepage         = 'https://github.com/arcas0803/device_screen_brightness'
   s.license          = { :file => '../LICENSE' }
@@ -17,7 +18,7 @@ using the private DisplayServices framework (built-in Apple displays only).
   s.source_files     = 'Classes/**/*'
   s.dependency 'FlutterMacOS'
   s.platform         = :osx, '10.11'
-  s.frameworks       = 'CoreGraphics'
+  s.frameworks       = 'CoreGraphics', 'IOKit'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version    = '5.0'
 end
